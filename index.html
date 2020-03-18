@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<link href="https://fonts.googleapis.com/css?family=Baloo+Chettan+2&display=swap" rel="stylesheet">
+<style>
+    .upgrade{
+        border-collapse: collapse;
+        border: 2px solid black;
+    }
+    .button{
+        border-radius: 100px;        
+         background-color: cornflowerblue;
+        text-transform: none;
+    }
+    .p{
+        font-family: Baloo Chettan;
+
+    }
+  
+    .ball{ 
+      cursor: pointer;
+      border-collapse: collapse;
+      border-radius: 100px;
+      padding-top: 65px;
+      background-color: cornflowerblue;
+      box-sizing: border-box;
+      width: 150px;
+      height: auto;
+      height: 150px;
+      text-align: center
+     
+    }
+    .center{
+      padding-left: 500px;
+      padding-top: 430px;
+    }
+  </style>
+<body> 
+  <p><mark>Thank you popotion for the code for the tapping circle.</mark></p>
+    <p>Total Points:</p>
+    <p class="p">0</p>
+    <h1>Tapping Game</h1>
+    <div class="center"><div class="ball"></div></div>
+    <button class="button" onclick="a2(click)">Easy Points</button>
+    <div class="upgrade"><p>Upgrades</p>
+        <div class="upgrade"><button onclick="two(click)">Times 2 Points per Click</button><p>10 points</p></div>
+    <div class="upgrade">    <button onclick="five(click)">Times 5 Points per click</button><p>50 points</p></div>
+<div class="upgrade">   <button onclick="ten(click)">Times 10 per Click</button><p>100 points</p></div></div>
+<div class="upgrade"><button onclick="infinite(click)">Infinite</button><p>1000 points</p></div> 
+    
+
+
+
+
+
+   
+    
+    <script src="https://unpkg.com/popmotion/dist/popmotion.global.min.js"></script>
+<script>
+    const { easing, physics, spring, tween, styler, listen, value, transform } = window.popmotion;
+const { pipe, clampMax } = transform;
+let a = 0;
+p = document.querySelector('.p');
+let pointsPerCliick = 1;
+let highscore = 0;
+const ball = document.querySelector('.ball');
+const ballStyler = styler(ball);
+const ballY = value(0, (v) => ballStyler.set('y', Math.min(0, v)));
+const ballScale = value(1, (v) => {
+  ballStyler.set('scaleX', 1 + (1 - v));
+  ballStyler.set('scaleY', v);
+});
+let count = 0;
+let isFalling = false;
+
+const ballBorder = value({
+  borderColor: '',
+  borderWidth: 0
+}, ({ borderColor, borderWidth }) => ballStyler.set({
+  boxShadow: `0 0 0 ${borderWidth}px ${borderColor}`
+}));
+
+const checkBounce = () => {
+  if (!isFalling || ballY.get() < 0) return;
+  
+  isFalling = false;
+  const impactVelocity = ballY.getVelocity();
+  const compression = spring({
+    to: 1,
+    from: 1,
+    velocity: - impactVelocity * 0.01,
+    stiffness: 800
+  }).pipe((s) => {
+    if (s >= 1) {
+      s = 1;
+      compression.stop();
+      
+      if (impactVelocity > 20) {
+        isFalling = true;
+        gravity
+          .set(0)
+          .setVelocity(- impactVelocity * 0.5);
+      }
+    }
+    return s;
+  }).start(ballScale);
+};
+
+const checkFail = () => {
+  if (ballY.get() >= 0 && ballY.getVelocity() !== 0 && ball.innerHTML !== 'Tap') {
+    count = 0;
+    tween({
+      from: { borderWidth: 0, borderColor: 'rgb(110, 255, 114)' },
+      to: { borderWidth: 30, borderColor: 'rgb(110, 173, 255)' }
+    }).start(ballBorder);
+
+    ball.innerHTML = 'Click Me For Points';
+  }
+};
+
+const gravity = physics({
+  acceleration: 2500,
+  restSpeed: false
+}).start((v) => {
+  ballY.update(v);
+  checkBounce(v);
+  checkFail(v);
+});
+
+listen(ball, 'mousedown touchstart').start((e) => {
+  e.preventDefault();
+  count++;
+  ball.innerHTML = count;
+
+  isFalling = true;
+ 
+  ballScale.stop();
+  ballScale.update(1); 
+  highscore = highscore + pointsPerCliick
+  p.innerText = highscore;
+
+  gravity
+    .set(Math.min(0, ballY.get()))
+    .setVelocity(-1200);
+
+  tween({
+    from: { borderWidth: 0, borderColor: 'rgb(20, 215, 144, 1)' },
+    to: { borderWidth: 30, borderColor: 'rgb(20, 215, 144, 0)' }
+  }).start(ballBorder);
+});
+function a2(click){
+    
+    highscore = highscore + pointsPerCliick
+p.innerText = highscore;
+}
+function two(click){
+    Number(highscore)
+    if( 10 != highscore || 10 > highscore){
+        window.alert("Not enough points.")
+    }
+    if(10 === highscore || 10 < highscore){
+      pointsPerCliick = 2;
+    highscore = highscore - 10;
+    p.innerText = highscore;}
+    window.alert("Times 2 acquired.")
+}
+function five(click){
+    Number(highscore)
+    if(50 != highscore || 50 > highscore){
+        window.alert("Not enough points.")
+    }
+    if(50 === highscore || 50 < highscore){
+        pointsPerCliick = 5;
+    highscore = highscore - 50;
+    p.innerText = highscore;
+    window.alert("Times 5 acquired.")
+    }
+    
+
+}
+function ten(click){
+    Number(highscore)
+    if(100 != highscore || 100 < highscore){
+        window.alert("Not enough points.")
+    }
+    if(100 === highscore || 100 < highscore){
+      pointsPerCliick = 10;
+    highscore = highscore - 100;
+    p.innerText = highscore;}
+    window.alert("Times 10 acquired.")
+
+}
+function infinite(click){
+    Number(highscore)
+    if(highscore != 1000 || highscore < 1000){
+        window.alert("Not enough points.")
+    }
+    if(highscore === 1000 || highscore > 100){
+      window.alert("Infinite acquired.")
+        while(a === 0){
+            highscore++
+            p.innerText = highscore;
+            setTimeout(function(){}, 100);
+            
+
+
+    }
+    }
+    
+
+}
+</script>
+  
+</body>
+</html>
